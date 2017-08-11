@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<style>
+			div {
+				font-size: 20px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>using <font style="color: red;">data()</font> to bind data</h1>
+		<div id="div1"></div><button id="btn_sort"></button>
+		<h1>using <font style="color: red;">datum()</font> to bind data</h1>
+		<div id="div2"></div>
+		<h1>using <font style="color: red;">data(function())</font> to bind data</h1>
+		<div id="div3"></div>
+		<h1>using <font style="color: red;">datum(function())</font> to bind data</h1>
+		<div id="div4"></div>
+		<h1>return of data</h1>
+		<div id="div5"></div>
+		<script>
+			var width = 900;
+			var height = 600;
+			var rawData = ["item1", "item2", "item3", "item4"];
+			var svg = d3.select("body").append("svg")
+				.attr("width", width)
+				.attr("height", height);
+			var div = d3.select("#div1")
+				.selectAll("div")
+				.data(rawData)
+				.enter()
+				.append("div")
+				.text(function(d) {
+					return d;
+				});
+			for(var ele in rawData) {
+				d3.select("#div2")
+					.datum(rawData)
+					.append("div")
+					.text(function(d) {
+						return d;
+					});
+			};
+			var div3 = d3.select("#div3")
+				.selectAll("div")
+				.data(mapData(rawData))
+				.enter()
+				.append("div")
+				.text(function(d) {
+					return d;
+				});
+			for(var ele in rawData) {
+				d3.select("#div4")
+					.datum(mapData(rawData))
+					.append("div")
+					.text(function(d) {
+						return d;
+					});
+			};
+			d3.select("#div5")
+				.append("div")
+				.text(function(d) {
+					return div.data();
+				});
+
+			var order = -1;
+			d3.select("#btn_sort")
+				.text("sort descending")
+				.on("click", function() {
+					sort(order)
+				});
+
+			function sort(k) {
+				div[0].sort(function(a, b) {
+					var stra = a.innerText.substr(4, 1);
+					var strb = b.innerText.substr(4, 1);
+					/*If negative, then a should be before b; 
+					 *If positive, then a should be after b
+					 */
+					return(stra - strb) * k;
+				});
+				for(var index = 0; index < div[0].length; index++) {
+					d3.select("#div1")
+						.append(function() {
+							return div[0][index]
+						});
+				}
+				order = order * -1;
+				if(d3.select("#btn_sort").text() == "sort descending")
+					d3.select("#btn_sort").text("sort ascending");
+				else
+					d3.select("#btn_sort").text("sort descending");
+			}
+
+			function mapData(data) {
+				data.push("item" + (data.length + 1));
+				return data;
+			}
+		</script>
+
+	</body>
+
+</html>

@@ -1,0 +1,42 @@
+<body>
+	<script type="text/javascript" src="../../js/d3.min.js" ></script>
+	<script>
+	var barhight = 2;
+	var svg = d3.select("body")
+			.append("svg").attr('width', "100%").attr('height', "10000");
+	var levels = 400;
+	for ( level=0;level<=levels;level++){
+		svg.append("rect")
+		.attr("x", function(d){return 100;})
+		.attr("y", function(d){return 5+level*barhight;})
+		.attr("width", function(d){return 100;})
+		.attr("height", function(d){return barhight;})
+		.attr("fill", function(d){ var t = level/levels; return mapping(t);})
+		.style("shape-rendering", "auto")
+		.style("stroke", "black")
+		.style("stroke-width", "0")
+		.style("stroke-opacity", 0.8);
+		}
+				
+				
+	function mapping(t){
+		var maxNumber = 255;
+		var colors = [[0,0,1],[0,1,1],[0,1,0],[1,1,0],[1,0,0],[1,0,1]];
+		var ticks = [0,0.2,0.4,0.6,0.8,1];
+		var color = [0,0,0];
+		if(t<=ticks[0])
+		color = colors[0];
+		else (t>=ticks[ticks.length-1])
+		color = colors[colors.length-1];
+		for(i = 1;i<ticks.length;i++){
+			if(t<ticks[i]){
+				for(j =0;j<color.length;j++){
+					color[j] = ((t-ticks[i-1])*colors[i][j]+(ticks[i] - t)*colors[i-1][j])/(ticks[i]-ticks[i-1]);
+					}
+				break;
+			}
+		}
+		return d3.rgb(Math.round(color[0]*maxNumber),Math.round(color[1]*maxNumber),Math.round(color[2]*maxNumber));
+	}
+	</script>
+</body>	

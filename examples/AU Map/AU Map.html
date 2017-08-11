@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<script type="text/javascript" src="../../js/d3.min.js" ></script>
+		<script type="text/javascript" src="../../js/d3.geo.js" ></script>
+	</head>
+
+	<body style="margin-top: 0px; margin-left: 0px;">
+		<script>
+			var width = 900;
+			var height = 600;
+			var oceanColor = 'mediumblue';
+			var terrenColor = 'silver';
+			var zoomValue = 2;
+			var svg = d3.select("body")
+				.append("svg").attr('width', width).attr('height', height);
+			svg.append("rect")
+				.attr("width", "100%")
+				.attr("height", "100%")
+				.attr("fill", oceanColor)
+				.attr("opacity", 0.9);
+			var projection = d3.geo.equirectangular()
+				.scale(6000)
+				.translate([-1800, -140]);
+			var path = d3.geo.path()
+				.projection(projection);
+			var g = svg.append("g");
+			var states = g.append("svg:g")
+				.attr("id", "states");
+			d3.json("json/au-states.geojson.json", function(collection) {
+				states.selectAll("path")
+					.data(collection.features)
+					.enter().append("svg:path")
+					.attr("d", path)
+					.attr("fill", function(d, i) {
+						return terrenColor;
+					})
+					.on("mouseover", handleMouseOver)
+					.on("mouseout", handleMouseOut)
+					.on("mousemove", handleMouseMove)
+					.on("click", handleMouseClick);
+			});
+
+			function handleMouseOver(d, i) { // Add interactivity
+				// Specify where to put label of text
+				svg.append("text")
+					.attr("id", function() {
+						return "state" + i;
+					})
+					.attr("x", function(d) {
+						return d3.mouse(this)[0];
+					})
+					.attr("y", function() {
+						return d3.mouse(this)[1];
+					})
+					.style("font-weight", "600")
+					//.style("font-size", "26px")
+					.text(function() {
+						return d.properties.STATE_NAME;
+					});
+			}
+
+			function handleMouseOut(d, i) {
+				// Select text by id and then remove
+				d3.select("#state" + i).remove();
+			}
+
+			function handleMouseMove(d, i) {
+				// Select text by id and then remove
+				if (d3.select("#state" + i) != null) {
+					d3.select("#state" + i).remove();
+					svg.append("text")
+						.attr("id", function() {
+							return "state" + i;
+						})
+						.attr("x", function(d) {
+							return d3.mouse(this)[0]+5;
+						})
+						.attr("y", function() {
+							return d3.mouse(this)[1]-5;
+						})
+						.style("font-weight", "600")
+						//.style("font-size", "26px")
+						.text(function() {
+							return d.properties.STATE_NAME;
+						});
+				};
+			}
+
+			function handleMouseClick(d, i) {
+				g.transition()
+					.duration(750)
+					.attr("transform", "translate(" + width / zoomValue + "," + height / zoomValue + ")scale(" + zoomValue + ")translate(" + -(d3.mouse(this)[0]/zoomValue) + "," + -(d3.mouse(this)[1]/zoomValue) + ")");
+				zoomValue = zoomValue*2;
+			}
+		</script>
+	</body>
+
+</html>
